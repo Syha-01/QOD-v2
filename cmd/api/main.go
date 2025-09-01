@@ -2,49 +2,55 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
+	"time"
 )
 
-// configuration defines the application's configuration settings.
-type configuration struct {
-	port int
-	env  string
+const appVersion = "1.0.0"
+
+type serverConfig struct {
+	Port        int
+	Environment string
 }
 
-// application holds the application's dependencies.
 type application struct {
-	config configuration
+	config serverConfig
 	logger *slog.Logger
 }
 
 func main() {
-	cfg := loadConfig()
-	logger := setupLogger(cfg.env)
+	var settings serverConfig
 
-	app := &application{
-		config: cfg,
+	flag.IntVar(&settings.Port, "port", 4001, "Server port")
+	flag.StringVar(&settings.Environment, "env", "development", "Environment(development|staging|production)")
+	flag.Parse()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+	appInstance := &application{
+		config: settings,
 		logger: logger,
 	}
 
-	if err := app.serve(); err != nil {
-		logger.Error(err.Error())
-		os.Exit(1)
+	router := http.NewServeMux()
+	router.HandleFunc("/v1/healthcheck", appInstance.healthcheckHandler)
+
+	apiServer := &http.Server{
+		Addr:         fmt.Sprintf(":%d", settings.Port),
+		Handler:      router,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
-}
 
-// loadConfig reads configuration from command-line flags.
-func loadConfig() configuration {
-	var cfg configuration
+	logger.Info("starting server", "address", apiServer.Addr,
+		"environment", settings.Environment)
+	err := apiServer.ListenAndServe()
+	logger.Error(err.Error())
+	os.Exit(1)
 
-	flag.IntVar(&cfg.port, "port", 4000, "API server port")
-	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.Parse()
-
-	return cfg
-}
-
-// setupLogger configures the application logger based on the environment.
-func setupLogger(env string) *slog.Logger {
-	return slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
