@@ -24,7 +24,7 @@ type application struct {
 func main() {
 	var settings serverConfig
 
-	flag.IntVar(&settings.Port, "port", 4001, "Server port")
+	flag.IntVar(&settings.Port, "port", 4002, "Server port")
 	flag.StringVar(&settings.Environment, "env", "development", "Environment(development|staging|production)")
 	flag.Parse()
 
@@ -35,12 +35,12 @@ func main() {
 		logger: logger,
 	}
 
-	router := http.NewServeMux()
-	router.HandleFunc("/v1/healthcheck", appInstance.healthcheckHandler)
+	// router := http.NewServeMux()
+	// router.HandleFunc("/v1/healthcheck", appInstance.healthcheckHandler)
 
 	apiServer := &http.Server{
 		Addr:         fmt.Sprintf(":%d", settings.Port),
-		Handler:      router,
+		Handler:      appInstance.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
