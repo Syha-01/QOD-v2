@@ -13,3 +13,6 @@ type Quote struct {
 	CreatedAt time.Time // database timestamp
 	Version   int32     // incremented on each update
 }
+
+// BODY='{"content":"I loved it!💛", "author":"Dalwin D. Lewis"}'
+// curl -i -d "$BODY" localhost:4000/v1/quotes

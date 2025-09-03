@@ -77,12 +77,12 @@ func (a *application) readJSON(w http.ResponseWriter, r *http.Request, destinati
 }
 
 func (a *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
-	// let's convert our map to a JSON object
+
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
 	}
-	// add a newline to make viewing on the terminal easier
+
 	js = append(js, '\n')
 
 	// Add the headers
