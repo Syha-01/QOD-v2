@@ -4,7 +4,10 @@ package main
 import (
 	"fmt"
 	"net/http"
+
 	// import the data package which contains the definition for Quote
+	"github.com/Syha-01/qod/internal/data"
+	"github.com/Syha-01/qod/internal/validator"
 )
 
 func (a *application) createQuoteHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +22,19 @@ func (a *application) createQuoteHandler(w http.ResponseWriter, r *http.Request)
 	err := a.readJSON(w, r, &incomingData)
 	if err != nil {
 		a.badRequestResponse(w, r, err)
+		return
+	}
+
+	quote := &data.Quote{
+		Content: incomingData.Content,
+		Author:  incomingData.Author,
+	}
+
+	v := validator.New()
+
+	data.ValidateQuote(v, quote)
+	if !v.IsEmpty() {
+		a.failedValidationResponse(w, r, v.Errors) // implemented later
 		return
 	}
 
