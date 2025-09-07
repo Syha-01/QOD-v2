@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Syha-01/qod/internal/data"
 	// the '_' means that we will not direct use the pq package
 	_ "github.com/lib/pq"
 )
@@ -23,15 +24,16 @@ type serverConfig struct {
 }
 
 type application struct {
-	config  serverConfig
-	logger  *slog.Logger
-	version string
+	config     serverConfig
+	logger     *slog.Logger
+	version    string
+	quoteModel data.QuoteModel
 }
 
 func main() {
 	var settings serverConfig
 
-	flag.IntVar(&settings.Port, "port", 4002, "Server port")
+	flag.IntVar(&settings.Port, "port", 4000, "Server port")
 	flag.StringVar(&settings.Environment, "env", "development", "Environment(development|staging|production)")
 	// read in the dsn
 	flag.StringVar(&settings.db.dsn, "db-dsn", "postgres://quotes:quotes2025@localhost/quotes?sslmode=disable", "PostgreSQL DSN")
@@ -52,9 +54,10 @@ func main() {
 	logger.Info("database connection pool established")
 
 	appInstance := &application{
-		config:  settings,
-		logger:  logger,
-		version: version,
+		config:     settings,
+		logger:     logger,
+		version:    version,
+		quoteModel: data.NewQuoteModel(db),
 	}
 
 	err = appInstance.serve()
