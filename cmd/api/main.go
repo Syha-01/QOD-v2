@@ -4,9 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"time"
 
@@ -14,7 +12,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const appVersion = "1.0.0"
+const version = "1.0.0"
 
 type serverConfig struct {
 	Port        int
@@ -25,8 +23,9 @@ type serverConfig struct {
 }
 
 type application struct {
-	config serverConfig
-	logger *slog.Logger
+	config  serverConfig
+	logger  *slog.Logger
+	version string
 }
 
 func main() {
@@ -53,27 +52,16 @@ func main() {
 	logger.Info("database connection pool established")
 
 	appInstance := &application{
-		config: settings,
-		logger: logger,
+		config:  settings,
+		logger:  logger,
+		version: version,
 	}
 
-	// router := http.NewServeMux()
-	// router.HandleFunc("/v1/healthcheck", appInstance.healthcheckHandler)
-
-	apiServer := &http.Server{
-		Addr:         fmt.Sprintf(":%d", settings.Port),
-		Handler:      appInstance.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	err = appInstance.serve()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
-
-	logger.Info("starting server", "address", apiServer.Addr,
-		"environment", settings.Environment)
-	err = apiServer.ListenAndServe() // remove the :
-	logger.Error(err.Error())
-	os.Exit(1)
 
 } // end of main()
 

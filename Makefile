@@ -1,4 +1,4 @@
-include.envrc
+include	.envrc
 
 .PHONY: run/api
 run/api:

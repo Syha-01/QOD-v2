@@ -1,3 +1,1 @@
-example .envrc file
-
-To hold example data
+export QUOTES_DB_DSN=postgres://[DATABASE]:[PASSWORD]@localhost/[USER/ROLE]?sslmode=disable
