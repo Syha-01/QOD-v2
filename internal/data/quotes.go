@@ -4,6 +4,7 @@ package data
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/Syha-01/qod/internal/validator"
@@ -64,4 +65,37 @@ func (c QuoteModel) Insert(quote *Quote) error {
 
 func NewQuoteModel(db *sql.DB) QuoteModel {
 	return QuoteModel{DB: db}
+}
+
+// Get a specific Comment from the comments table
+func (c QuoteModel) Get(id int64) (*Quote, error) {
+	// check if the id is valid
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+	// the SQL query to be executed against the database table
+	query := `
+        SELECT id, created_at, content, author, version
+        FROM quotes
+        WHERE id = $1
+				`
+	// declare a variable of type Comment to store the returned comment
+	var quote Quote
+
+	// Set a 3-second context/timer
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := c.DB.QueryRowContext(ctx, query, id).Scan(&quote.ID, &quote.CreatedAt, &quote.Content, &quote.Author, &quote.Version)
+
+	// check for which type of error
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+	return &quote, nil
 }
