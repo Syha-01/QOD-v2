@@ -3,7 +3,7 @@ include	.envrc
 .PHONY: run/api
 run/api:
 	@echo '--Running application'
-	@go run ./cmd/api -port=4000 -env=development -db-dsn=${QUOTES_DB_DSN}
+	@go run ./cmd/api -port=4001 -env=development -db-dsn=${QUOTES_DB_DSN}
 
 ## db/psql: connect to the database using psql (terminal)
 .PHONY:	db/psql

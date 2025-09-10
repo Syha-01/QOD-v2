@@ -33,7 +33,7 @@ type application struct {
 func main() {
 	var settings serverConfig
 
-	flag.IntVar(&settings.Port, "port", 4000, "Server port")
+	flag.IntVar(&settings.Port, "port", 4001, "Server port")
 	flag.StringVar(&settings.Environment, "env", "development", "Environment(development|staging|production)")
 	// read in the dsn
 	flag.StringVar(&settings.db.dsn, "db-dsn", "postgres://quotes:quotes2025@localhost/quotes?sslmode=disable", "PostgreSQL DSN")

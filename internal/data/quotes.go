@@ -99,3 +99,21 @@ func (c QuoteModel) Get(id int64) (*Quote, error) {
 	}
 	return &quote, nil
 }
+
+// Update a specific Quote from the quotes table
+func (c QuoteModel) Update(quote *Quote) error {
+	// The SQL query to be executed against the database table
+	// Every time we make an update, we increment the version number
+	query := `
+        UPDATE quotes
+        SET content = $1, author = $2, version = version + 1
+        WHERE id = $3
+        RETURNING version
+      `
+	args := []any{quote.Content, quote.Author, quote.ID}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return c.DB.QueryRowContext(ctx, query, args...).Scan(&quote.Version)
+
+}
