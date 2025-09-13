@@ -21,6 +21,7 @@ func (a *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/quotes/:id", a.displayQuoteHandler)
 	router.HandlerFunc(http.MethodPatch, "/v1/quotes/:id", a.updateQuoteHandler)
 	router.HandlerFunc(http.MethodDelete, "/v1/quotes/:id", a.deleteQuoteHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/quotes", a.listQuotesHandler)
 
 	return a.recoverPanic(router)
 
