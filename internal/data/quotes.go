@@ -157,18 +157,27 @@ func (c QuoteModel) Delete(id int64) error {
 }
 
 // Get all comments
-func (c QuoteModel) GetAll() ([]*Quote, error) {
+// Get specific comments based on the query parameters (content and author)
+func (c QuoteModel) GetAll(content string, author string) ([]*Quote, error) {
 
 	// the SQL query to be executed against the database table
+	// We will use PostgreSQL's builtin full-text search  feature
+	// which allows us to do natural language searches
+	// $? = '' allows for content and author to be optional
 	query := `
         SELECT id, created_at, content, author, version
         FROM quotes
+        WHERE (to_tsvector('simple', content) @@
+              plainto_tsquery('simple', $1) OR $1 = '')
+        AND (to_tsvector('simple', author) @@
+             plainto_tsquery('simple', $2) OR $2 = '')
         ORDER BY id
-      `
+`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	// QueryContext returns multiple rows.
-	rows, err := c.DB.QueryContext(ctx, query)
+	rows, err := c.DB.QueryContext(ctx, query, content, author)
+
 	if err != nil {
 		return nil, err
 	}
