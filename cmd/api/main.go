@@ -6,6 +6,7 @@ import (
 	"flag"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Syha-01/qod/internal/data"
@@ -21,6 +22,9 @@ type serverConfig struct {
 	db          struct {
 		dsn string
 	}
+	cors struct {
+		trustedOrigins []string
+	}
 }
 
 type application struct {
@@ -31,12 +35,22 @@ type application struct {
 }
 
 func main() {
+
 	var settings serverConfig
 
 	flag.IntVar(&settings.Port, "port", 4001, "Server port")
 	flag.StringVar(&settings.Environment, "env", "development", "Environment(development|staging|production)")
 	// read in the dsn
 	flag.StringVar(&settings.db.dsn, "db-dsn", "postgres://quotes:quotes2025@localhost/quotes?sslmode=disable", "PostgreSQL DSN")
+
+	// We will build a custom command-line flag.  This flag will allow us to access
+	// space-separated origins. We will then put those origins in our slice. Again not // something we can do with the flag functions that we have seen so far.
+	// strings.Fields() splits string (origins) on spaces
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)",
+		func(val string) error {
+			settings.cors.trustedOrigins = strings.Fields(val)
+			return nil
+		})
 
 	flag.Parse()
 
