@@ -4,6 +4,8 @@ echo "Healthcheck:"
 curl -i localhost:4000/v1/healthcheck
 echo ""
 
+/---------------------------------  CRUD  ----------------------------------------/
+
 # Create a new quote
 echo "Create a new quote:"
 BODY='{"content":"The only way to do great work is to love what you do.", "author":"Steve Jobs"}'
@@ -31,7 +33,8 @@ echo "Delete quote with ID 1:"
 curl -i -X DELETE localhost:4000/v1/quotes/1
 echo ""
 
-testing pagination
+/---------------------------------  PAGINATION  ----------------------------------------/
+
 # Page 1
 curl -i "localhost:4000/v1/quotes?page=1&page_size=2"
 
@@ -40,3 +43,16 @@ curl -i "localhost:4000/v1/quotes?page=3&page_size=2"
 
 # Non-existent page
 curl -i "localhost:4000/v1/quotes?page=5&page_size=2"
+
+/---------------------------------  SORTING  ----------------------------------------/
+
+
+# Descending order
+curl -i "localhost:4000/v1/quotes?sort=-id"
+
+# Author in descending order
+curl -i "localhost:4000/v1/quotes?sort=-author"
+
+# Author in descending order and also paginate
+curl -i "localhost:4000/v1/quotes?page_size=4&sort=-author"
+
