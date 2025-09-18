@@ -23,7 +23,7 @@ func (a *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodDelete, "/v1/quotes/:id", a.deleteQuoteHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/quotes", a.listQuotesHandler)
 
-	return a.recoverPanic(a.enableCORS(router))
+	return a.recoverPanic(a.rateLimit(a.enableCORS(router)))
 
 	//	return a.recoverPanic(router)
 

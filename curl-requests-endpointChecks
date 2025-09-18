@@ -56,3 +56,16 @@ curl -i "localhost:4000/v1/quotes?sort=-author"
 # Author in descending order and also paginate
 curl -i "localhost:4000/v1/quotes?page_size=4&sort=-author"
 
+/---------------------------------  RATE-LIMITING  ----------------------------------------/
+
+# rate limiting
+
+for i in {1..8}; do curl localhost:4000/v1/healthcheck; done
+
+# Run with limter disabled.
+
+set the command line flag in the Makefile to false [-limiter-enabled=false]
+
+/---------------------------------  GRACEFUL-SHUTDOWN  ----------------------------------------/
+
+just CTRL + C 🤷
