@@ -21,7 +21,7 @@ echo ""
 echo "Update quote with ID 1:"
 BODY='{"content":"The only way to do great work is to love what you do. - Updated", "author":"Steve Jobs"}'
 curl -i -X PATCH -d "$BODY" localhost:4000/v1/quotes/1
-echo ""
+echo ""zz
 
 # List all quotes
 echo "List all quotes:"
@@ -33,12 +33,24 @@ echo "Delete quote with ID 1:"
 curl -i -X DELETE localhost:4000/v1/quotes/1
 echo ""
 
+/---------------------------------  CORS  ----------------------------------------/
+
+#Testing the healthcheck endpoint No Authentication has been implemented as yet (http://localhost:4000/v1/healthcheck)
+go run ./cmd/examples/cors/basic
+
+# Testing preflight CORS (http://localhost:4000/v1/tokens/authentication) requires authentication
+go run ./cmd/examples/cors/preflight
+
+make run/api
+
+then open port http://localhost:9000 on your browser
+
 /---------------------------------  PAGINATION  ----------------------------------------/
 
-# Page 1
+# Page 1 This requests page one from the api with 2 quotes per page
 curl -i "localhost:4000/v1/quotes?page=1&page_size=2"
 
-# Page 3
+# Page 3 with 2 quotes
 curl -i "localhost:4000/v1/quotes?page=3&page_size=2"
 
 # Non-existent page
@@ -47,10 +59,10 @@ curl -i "localhost:4000/v1/quotes?page=5&page_size=2"
 /---------------------------------  SORTING  ----------------------------------------/
 
 
-# Descending order
+# Descending order, sorts quotes in descending order by ID
 curl -i "localhost:4000/v1/quotes?sort=-id"
 
-# Author in descending order
+# Sorts quotes by Author in descending order
 curl -i "localhost:4000/v1/quotes?sort=-author"
 
 # Author in descending order and also paginate
@@ -58,14 +70,23 @@ curl -i "localhost:4000/v1/quotes?page_size=4&sort=-author"
 
 /---------------------------------  RATE-LIMITING  ----------------------------------------/
 
-# rate limiting
+# rate limiting, makes 8 concurrent requests to the api to check for the rate limit
 
 for i in {1..8}; do curl localhost:4000/v1/healthcheck; done
+
 
 # Run with limter disabled.
 
 set the command line flag in the Makefile to false [-limiter-enabled=false]
 
+
 /---------------------------------  GRACEFUL-SHUTDOWN  ----------------------------------------/
 
 just CTRL + C 🤷
+
+/---------------------------------  MAKE-MIGRATIONS  ----------------------------------------/
+
+make db/migrations/new name=[fileName]
+
+#Run the migrations
+make db/migrations/up
