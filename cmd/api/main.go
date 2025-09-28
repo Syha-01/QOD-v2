@@ -38,6 +38,7 @@ type application struct {
 	logger     *slog.Logger
 	version    string
 	quoteModel data.QuoteModel
+	userModel  data.UserModel
 }
 
 func main() {
@@ -84,6 +85,7 @@ func main() {
 		logger:     logger,
 		version:    version,
 		quoteModel: data.NewQuoteModel(db),
+		userModel:  data.NewUserModel(db),
 	}
 
 	err = appInstance.serve()
